@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Libro;
+use App\Models\Autor;
 use Illuminate\Http\Request;
 
 class LibroNuevoController extends Controller
@@ -11,7 +13,9 @@ class LibroNuevoController extends Controller
      */
     public function index()
     {
-        //
+        $libros = Libro::paginate(5);
+        $autores = Autor::get();
+        return view('libros.index', compact('libros', 'autores'));
     }
 
     /**
@@ -27,7 +31,13 @@ class LibroNuevoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $libro = new Libro();
+        $libro->titulo = $request->get('titulo');
+        $libro->editorial = $request->get('editorial');
+        $libro->precio = $request->get('precio');
+        $libro->autor_id = $request->get('autor');
+        $libro->save();
+        return redirect()->route('libros.index');
     }
 
     /**
@@ -43,7 +53,9 @@ class LibroNuevoController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $libro = Libro::findOrFail($id);
+        $autores = Autor::get();
+        return view('libros.update', compact('libro', 'autores'));
     }
 
     /**
@@ -51,7 +63,13 @@ class LibroNuevoController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $libro = Libro::findOrFail($id);
+        $libro->titulo = $request->get('titulo');
+        $libro->editorial = $request->get('editorial');
+        $libro->precio = $request->get('precio');
+        $libro->autor_id = $request->get('autor');
+        $libro->save();
+        return redirect()->route('libros.index'); 
     }
 
     /**
@@ -59,6 +77,16 @@ class LibroNuevoController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $libro = Libro::findOrFail($id);
+        $libro->delete();
+        return redirect()->route('libros.index');
     }
+
+    public function buscarLibros(Request $request)
+    {
+        $autor = Autor::findOrFail($request->get('autor'));
+        $libros = $autor->libros;
+       return view('resultBusqueda', compact('autor', 'libros'));
+    }
+
 }
